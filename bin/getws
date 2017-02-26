@@ -1,0 +1,52 @@
+#!/usr/bin/env node
+
+const path = require('path');
+const fs = require('fs');
+const rp = require('request-promise');
+const jsonic = require('jsonic');
+const exec = require('child_process').exec;
+const axel = require('axel-js');
+
+
+let show = process.argv[2].trim();
+let season = ~~process.argv[3].trim();
+let episode = ~~process.argv[4].trim();
+let fname = `${show}-S${season}E${episode<10?("0"+episode):episode}.mp4`;
+
+let main = async function () {
+	let url = `http://watchseries.cr/series/${show}/season/${season}/episode/${episode}`;
+	try {
+		let wshtml = await rp(url);
+		let tv = /http\:\/\/thevideos.tv\/.*\.html/i.exec(wshtml)[0];
+		let tvhtml = await rp(tv);
+		let vids = jsonic(/sources\: (\[.*\])/im.exec(tvhtml)[1]);
+		let link = vids.pop().file;
+
+		// exec('axel -a -n 10 -o "' + path.resolve(fname) + '" "' + link+ '"', (error, stdout, stderr) => {
+		// 	if (error) {
+		// 		throw error;
+		// 		console.error(`exec error`, error);
+		// 		return;
+		// 	}
+		// 	console.log(`stdout: ${stdout}`);
+		// 	console.log(`stderr: ${stderr}`);
+		// });
+
+		await axel.download(link, {
+			output: path.resolve(fname),
+			quiet: false,
+			verbose: !true,
+			numConnections: 10,
+			header: []
+		});
+		
+	}catch (e) {
+		console.log("URL not found!");
+		console.log(e);
+		process.exit(1);
+		return;
+	}
+}
+
+main();
+

@@ -1,0 +1,25 @@
+{
+  "name": "getws",
+  "version": "0.0.1",
+  "description": "Download from watchseries.cr",
+  "main": "./bin/getws",
+  "scripts": {},
+  "author": "Amir Saboury",
+  "license": "MIT",
+  "dependencies": {
+    "axel-js": "^0.1.8",
+    "jsonic": "^0.2.2",
+    "request": "^2.79.0",
+    "request-promise": "^4.1.1"
+  },
+  "bin": {
+    "getws": "./bin/getws"
+  },
+  "bugs": {
+    "url": "https://github.com/amir-s/getws/issues"
+  },
+  "homepage": "https://github.com/amir-s/getws#readme",
+  "engines": {
+    "node": ">=7.6.0"
+  }
+}
