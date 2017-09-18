@@ -3,7 +3,6 @@
 const path = require('path');
 const fs = require('fs');
 const rp = require('request-promise');
-const jsonic = require('jsonic');
 const exec = require('child_process').exec;
 const axel = require('axel-js');
 
@@ -17,10 +16,20 @@ let main = async function () {
 	let url = `http://watchseries.cr/series/${show}/season/${season}/episode/${episode}`;
 	try {
 		let wshtml = await rp(url);
-		let tv = /http\:\/\/thevideos.tv\/.*\.html/i.exec(wshtml)[0];
-		let tvhtml = await rp(tv);
-		let vids = jsonic(/sources\: (\[.*\])/im.exec(tvhtml)[1]);
-		let link = vids.pop().file;
+		let emb = /https?\:\/\/estream.to\/.*\.html/i.exec(wshtml)[0];
+		let tvhtml = await rp(emb);
+
+		let rx = /<source src=\"(.*)\" type=\'video\/mp4'.*label=\'(\d+x\d+)' /img;
+		let vids;
+		let urls = [];
+		while (vids = rx.exec(tvhtml)) {
+			urls.push({
+				url: vids[1],
+				res: vids[2]
+			})
+		}
+		// console.log(urls);
+		let link = urls.pop().url;
 
 		// exec('axel -a -n 10 -o "' + path.resolve(fname) + '" "' + link+ '"', (error, stdout, stderr) => {
 		// 	if (error) {
@@ -36,7 +45,7 @@ let main = async function () {
 			output: path.resolve(fname),
 			quiet: false,
 			verbose: !true,
-			numConnections: 10,
+			numConnections: 1,
 			header: []
 		});
 		
